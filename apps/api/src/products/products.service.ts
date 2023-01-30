@@ -22,50 +22,59 @@ export class ProductsService {
   }
 
   async findAll(type?: string): Promise<ResponseProductDto[]> {
-    const products = await this.productModel.find(type ? { type } : {}).exec();
+    const products = await this.productModel
+      .find(type ? { type, active: true } : { active: true })
+      .exec();
 
     return products.map((product) => {
       return this.entityToDTO(product);
     });
   }
 
-  async findOne(id: string): Promise<ResponseProductDto> {
-    const existingProduct = await this.productModel.findById(id).exec();
+  async findOne(productId: string): Promise<ResponseProductDto> {
+    const existingProduct = await await this.findProductById(productId);
 
     if (!existingProduct) {
-      this.throwNotFoundException(id);
+      this.throwNotFoundException(productId);
     }
 
     return this.entityToDTO(existingProduct);
   }
 
   async update(
-    id: string,
+    productId: string,
     updateProductDto: UpdateProductDto,
   ): Promise<ResponseProductDto> {
     const updatedProduct = await this.productModel
-      .findByIdAndUpdate(id, updateProductDto)
+      .findByIdAndUpdate(productId, updateProductDto)
       .exec();
 
     if (!updatedProduct) {
-      this.throwNotFoundException(id);
+      this.throwNotFoundException(productId);
     }
 
     return this.entityToDTO(updatedProduct);
   }
 
-  async remove(id: string): Promise<{ deleted: boolean }> {
-    const removedProduct = await this.productModel.findByIdAndDelete(id).exec();
+  async remove(productId: string): Promise<{ deleted: boolean }> {
+    const existingProduct = await this.findProductById(productId);
 
-    if (!removedProduct) {
-      this.throwNotFoundException(id);
+    if (!existingProduct) {
+      this.throwNotFoundException(productId);
     }
+
+    existingProduct.active = false;
+    existingProduct.save();
 
     return { deleted: true };
   }
 
-  private throwNotFoundException(id: string) {
-    throw new NotFoundException(`Product with id ${id} not found`);
+  private throwNotFoundException(productId: string) {
+    throw new NotFoundException(`Product with id ${productId} not found`);
+  }
+
+  private async findProductById(productId: string) {
+    return await this.productModel.findById(productId).exec();
   }
 
   private entityToDTO(product: Product): ResponseProductDto {
