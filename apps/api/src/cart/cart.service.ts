@@ -44,8 +44,18 @@ export class CartService {
     return existingCartItem;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} cart`;
+  async remove(productId: string): Promise<{ deleted: boolean }> {
+    const existingCartItem = await this.cartModel.findOneAndRemove({
+      productId,
+    });
+
+    if (!existingCartItem) {
+      throw new NotFoundException(
+        `No cart item found with product id ${productId}`,
+      );
+    }
+
+    return { deleted: true };
   }
 
   private throwProductStockError(productStock: number) {
