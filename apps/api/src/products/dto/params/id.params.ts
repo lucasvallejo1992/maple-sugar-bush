@@ -1,6 +1,6 @@
 import { IsMongoId, IsString } from 'class-validator';
 
-export class ObjectIdParams {
+export class IdParams {
   @IsMongoId()
   @IsString()
   id: string;

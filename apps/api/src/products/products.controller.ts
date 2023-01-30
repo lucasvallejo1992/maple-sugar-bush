@@ -11,8 +11,8 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ObjectIdParams } from 'src/common/dto/params/object-id.params';
 import { TypeParams } from './dto/params/type.params';
+import { IdParams } from './dto/params/id.params';
 
 @Controller('products')
 export class ProductsController {
@@ -29,20 +29,20 @@ export class ProductsController {
   }
 
   @Get(':id')
-  findOne(@Param() params: ObjectIdParams) {
+  findOne(@Param() params: IdParams) {
     return this.productsService.findOne(params.id);
   }
 
   @Patch(':id')
   update(
-    @Param() params: ObjectIdParams,
+    @Param() params: IdParams,
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return this.productsService.update(params.id, updateProductDto);
   }
 
   @Delete(':id')
-  remove(@Param() params: ObjectIdParams) {
+  remove(@Param() params: IdParams) {
     return this.productsService.remove(params.id);
   }
 }
