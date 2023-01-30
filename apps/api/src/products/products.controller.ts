@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ObjectIdParams } from 'src/common/dto/params/object-id.params';
+import { TypeParams } from './dto/params/type.params';
 
 @Controller('products')
 export class ProductsController {
@@ -13,22 +24,25 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() params: TypeParams) {
+    return this.productsService.findAll(params.type);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  findOne(@Param() params: ObjectIdParams) {
+    return this.productsService.findOne(params.id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
+  update(
+    @Param() params: ObjectIdParams,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    return this.productsService.update(params.id, updateProductDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  remove(@Param() params: ObjectIdParams) {
+    return this.productsService.remove(params.id);
   }
 }
