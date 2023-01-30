@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from 'src/products/schema/product.schema';
+import { CartLineDto } from './dto/cart-line.dto';
 import { UpdateOrCreateCartDto } from './dto/update-or-create-cart.dto';
 import { Cart, CartDocument } from './schema/cart.schema';
 
@@ -18,20 +19,27 @@ export class CartService {
     private productModel: Model<ProductDocument>,
   ) {}
 
-  async findAll() {
-    return await this.cartModel.find().populate('productId');
+  async findAll(): Promise<CartLineDto[]> {
+    const cartItems = await this.cartModel.find().populate('productId');
+
+    return cartItems.map((cartItem) => this.entityToDto(cartItem));
   }
 
   async updateOrCreate(
     productId: string,
     updateCartDto: UpdateOrCreateCartDto,
-  ): Promise<Cart> {
+  ): Promise<CartLineDto> {
     const existingCartItem = await this.cartModel
       .findOne({ productId })
       .populate('productId');
 
     if (!existingCartItem) {
-      return await this.createCartItem(productId, updateCartDto);
+      const createdCartItem = await this.createCartItem(
+        productId,
+        updateCartDto,
+      );
+
+      return this.entityToDto(createdCartItem);
     }
 
     if (existingCartItem.productId.stock < updateCartDto.qty) {
@@ -41,7 +49,7 @@ export class CartService {
     existingCartItem.qty = updateCartDto.qty;
     existingCartItem.save();
 
-    return existingCartItem;
+    return this.entityToDto(existingCartItem);
   }
 
   async remove(productId: string): Promise<{ deleted: boolean }> {
@@ -56,6 +64,16 @@ export class CartService {
     }
 
     return { deleted: true };
+  }
+
+  private entityToDto(cart: Cart): CartLineDto {
+    return {
+      productId: cart.productId._id,
+      name: cart.productId.name,
+      image: cart.productId.image,
+      price: cart.productId.price,
+      qty: cart.qty,
+    };
   }
 
   private throwProductStockError(productStock: number) {
