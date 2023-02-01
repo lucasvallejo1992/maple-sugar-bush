@@ -7,7 +7,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from 'src/products/schema/product.schema';
 import { CartLineDto } from './dto/cart-line.dto';
-import { UpdateOrCreateCartDto } from './dto/update-or-create-cart.dto';
 import { Cart, CartDocument } from './schema/cart.schema';
 
 @Injectable()
@@ -25,28 +24,37 @@ export class CartService {
     return cartItems.map((cartItem) => this.entityToDto(cartItem));
   }
 
-  async updateOrCreate(
-    productId: string,
-    updateCartDto: UpdateOrCreateCartDto,
-  ): Promise<CartLineDto> {
-    const existingCartItem = await this.cartModel
-      .findOne({ productId })
-      .populate('productId');
+  async addToCart(productId: string): Promise<CartLineDto> {
+    const existingCartItem = await this.findCartItemByProductId(productId);
 
     if (!existingCartItem) {
-      const createdCartItem = await this.createCartItem(
-        productId,
-        updateCartDto,
-      );
+      const createdCartItem = await this.createCartItem(productId);
 
       return this.entityToDto(createdCartItem);
     }
 
-    if (existingCartItem.productId.stock < updateCartDto.qty) {
+    if (existingCartItem.productId.stock < existingCartItem.qty + 1) {
       this.throwProductStockError(existingCartItem.productId.stock);
     }
 
-    existingCartItem.qty = updateCartDto.qty;
+    existingCartItem.qty += 1;
+    existingCartItem.save();
+  }
+
+  async updateOrCreate(productId: string, qty = 1): Promise<CartLineDto> {
+    const existingCartItem = await this.findCartItemByProductId(productId);
+
+    if (!existingCartItem) {
+      const createdCartItem = await this.createCartItem(productId, qty);
+
+      return this.entityToDto(createdCartItem);
+    }
+
+    if (existingCartItem.productId.stock < qty) {
+      this.throwProductStockError(existingCartItem.productId.stock);
+    }
+
+    existingCartItem.qty = qty;
     existingCartItem.save();
 
     return this.entityToDto(existingCartItem);
@@ -80,23 +88,26 @@ export class CartService {
     throw new BadRequestException(`The product stock is ${productStock}`);
   }
 
-  private async createCartItem(
+  private async findCartItemByProductId(
     productId: string,
-    updateCartDto: UpdateOrCreateCartDto,
-  ): Promise<Cart> {
+  ): Promise<CartDocument> {
+    return await this.cartModel.findOne({ productId }).populate('productId');
+  }
+
+  private async createCartItem(productId: string, qty = 1): Promise<Cart> {
     const existingProduct = await this.productModel.findById(productId).exec();
 
     if (!existingProduct) {
       throw new NotFoundException(`Product with id ${productId} not found`);
     }
 
-    if (existingProduct.stock < updateCartDto.qty) {
+    if (existingProduct.stock < qty) {
       this.throwProductStockError(existingProduct.stock);
     }
 
     const cartItemCreated = await this.cartModel.create({
       productId,
-      ...updateCartDto,
+      qty,
     });
 
     return cartItemCreated;
