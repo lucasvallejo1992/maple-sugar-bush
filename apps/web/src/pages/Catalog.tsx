@@ -26,7 +26,7 @@ const productFilters = [
     key: ProductType.CLEAR,
     value: 'Clear'
   },
-]
+];
 
 const Catalog = () => {
   const [selectedFilter, setSelectedFilter] = useState(productFilters[0]);
@@ -35,7 +35,6 @@ const Catalog = () => {
   const { products, isLoading, isError } = useCatalog(selectedFilter.key);
   const { addItemToCart, isLoadingAddToCart } = useCart();
 
-  
   return (
     <Container sx={{ marginBottom: 4, marginTop: 2 }}>
       <Grid container sx={{ marginBottom: 1 }}>
