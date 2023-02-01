@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Cart, CartDocument } from 'src/cart/schema/cart.schema';
 import { Product, ProductDocument } from 'src/products/schema/product.schema';
 import { OrderItemDto } from './dto/order-item.dto';
 import { OrderValidationResponseDto } from './dto/order-validation-response.dto';
@@ -20,8 +19,6 @@ type ProductType = {
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectModel(Cart.name)
-    private cartModel: Model<CartDocument>,
     @InjectModel(Product.name)
     private productModel: Model<ProductDocument>,
   ) {}
@@ -62,18 +59,7 @@ export class OrderService {
       return { isOrderValid: false, errors };
     }
 
-    await this.processCartItems(existingProductList);
-
     return { isOrderValid: true, errors: [] };
-  }
-
-  private async processCartItems(productIdList: ProductType[]) {
-    for (const { product, qty } of productIdList) {
-      await this.cartModel.findOneAndRemove({ productId: product.id });
-
-      product.stock -= qty;
-      await product.save();
-    }
   }
 
   private getProductErrorString({
