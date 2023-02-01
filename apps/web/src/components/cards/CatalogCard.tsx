@@ -1,9 +1,10 @@
-import { Button, Card, CardActions, CardContent, CardMedia, Typography } from '@mui/material';
+import { Button, Card, CardActions, CardContent, CardMedia, CircularProgress, Typography } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import { Product } from '../../types/product.type';
 
 type CardCatalogActions = {
+  isLoading: boolean;
   onAddToCart: () => void;
   onProductClick: () => void;
 }
@@ -14,8 +15,9 @@ const CatalogCard = ({
   name,
   image,
   price,
+  isLoading,
   onAddToCart,
-  onProductClick
+  onProductClick,
 }: CardCatalogProps) => {
   return (
     <Card sx={{ width: 320 }}>
@@ -42,10 +44,20 @@ const CatalogCard = ({
       <CardActions>
         <Button
           variant="contained"
-          startIcon={<ShoppingCartIcon />}
+          startIcon={!isLoading ? <ShoppingCartIcon /> : undefined}
           onClick={onAddToCart}
+          sx={{ height: 40 }}
+          disabled={isLoading}
           fullWidth
-        >Add to cart</Button>
+        >
+          {
+            !isLoading ? (
+              'Add to cart'
+            ) : (
+              <CircularProgress color="inherit" size={25} />
+            )
+          }
+        </Button>
       </CardActions>
     </Card>
   );

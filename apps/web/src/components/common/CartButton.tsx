@@ -20,7 +20,7 @@ type CartButtonProps = {
 const CartButton = ({ count, onClick}: CartButtonProps) => (
   <IconButton aria-label="cart" onClick={onClick}>
     <StyledBadge badgeContent={count} color="primary">
-      <ShoppingCartIcon color="primary" />
+      <ShoppingCartIcon color="inherit" />
     </StyledBadge>
   </IconButton>
 )
