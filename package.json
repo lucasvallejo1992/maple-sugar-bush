@@ -1,6 +1,6 @@
 {
-  "name": "maplr-sugar-bush",
-  "version": "0.0.0",
+  "name": "maple-sugar-bush",
+  "version": "1.0.0",
   "private": true,
   "workspaces": [
     "apps/*",
