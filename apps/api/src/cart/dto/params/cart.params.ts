@@ -1,4 +1,4 @@
-import { IsInt, IsMongoId, IsString, Min } from 'class-validator';
+import { IsInt, IsMongoId, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CartParams {
@@ -7,6 +7,7 @@ export class CartParams {
   productId: string;
 
   @Type(() => Number)
+  @IsOptional()
   @IsInt()
   @Min(1)
   newQty?: string;

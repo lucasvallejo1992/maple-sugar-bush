@@ -85,7 +85,7 @@ export class CartService {
   }
 
   private throwProductStockError(productStock: number) {
-    throw new BadRequestException(`The product stock is ${productStock}`);
+    throw new BadRequestException('MAX_STOCK_ERROR');
   }
 
   private async findCartItemByProductId(
