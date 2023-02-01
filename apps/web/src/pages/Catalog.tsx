@@ -22,9 +22,13 @@ const Catalog = () => {
               </Grid>
             ))
           ) : (
-            products.map((product: any) => (
+            products?.map((product: any) => (
               <Grid item>
-                <CatalogCard {...product} />
+                <CatalogCard
+                  {...product}
+                  onAddToCart={() => {}}
+                  onProductClick={() => {}}
+                />
               </Grid>
             ))
           )

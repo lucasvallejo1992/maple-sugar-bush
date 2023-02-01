@@ -1,33 +1,51 @@
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Skeleton, Typography } from '@mui/material';
+import { Button, Card, CardActions, CardContent, CardMedia, Typography } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
-type CardCatalogProps = {
-  name: string;
-  image: string;
-  price: number;
-  stock: number;
+import { Product } from '../../types/product.type';
+
+type CardCatalogActions = {
   onAddToCart: () => void;
   onProductClick: () => void;
 }
 
-const CatalogCard = ({ name, image, price, stock, onAddToCart, onProductClick }: CardCatalogProps) => {
+type CardCatalogProps = Product & CardCatalogActions;
+
+const CatalogCard = ({
+  name,
+  image,
+  price,
+  onAddToCart,
+  onProductClick
+}: CardCatalogProps) => {
   return (
     <Card sx={{ width: 320 }}>
       <CardMedia
-        sx={{ height: 180 }}
-        image="https://i.cbc.ca/1.5913747.1613256030!/cumulusImage/httpImage/image.jpg_gen/derivatives/16x9_780/maple-syrup-shutterstock.jpg"
-        title="green iguana"
+        sx={{ height: 180, cursor: 'pointer' }}
+        image={image}
+        title={name}
+        onClick={onProductClick}
       />
       <CardContent>
-        <Typography gutterBottom variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography
+          gutterBottom
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          onClick={onProductClick}
+        >
           { name }
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          $150
+          ${price.toString()}
         </Typography>
       </CardContent>
       <CardActions>
-        <Button variant="contained" startIcon={<ShoppingCartIcon />} fullWidth>Add to cart</Button>
+        <Button
+          variant="contained"
+          startIcon={<ShoppingCartIcon />}
+          onClick={onAddToCart}
+          fullWidth
+        >Add to cart</Button>
       </CardActions>
     </Card>
   );
