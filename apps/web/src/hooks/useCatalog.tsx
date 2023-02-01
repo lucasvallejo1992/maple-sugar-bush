@@ -14,6 +14,7 @@ export const useCatalog = (type?: ProductType) => {
         `${process.env.REACT_APP_API_BASE_URL}/products`,
         { params }
       );
+      
       return res.data;
     });
 

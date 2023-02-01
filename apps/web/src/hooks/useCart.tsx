@@ -3,8 +3,9 @@ import { useQuery } from 'react-query';
 import { toast } from 'react-toastify';
 
 import { ProductType } from '../enums/ProductType.enum';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { showDefaultErrorToast } from '../utils/toast.utils';
+import { ProductCart } from '../types/productCart.type';
 
 const addToCartLoadingBaseValue = {
   id: '',
@@ -13,12 +14,15 @@ const addToCartLoadingBaseValue = {
 
 export const useCart = (type?: ProductType) => {
   const [isLoadingAddToCart, setIsLoadingAddToCart] = useState(addToCartLoadingBaseValue);
+  const [productsCount, setProductsCount] = useState(0);
 
-  const { data, isError, isLoading, refetch: refectchCart } = useQuery<[]>(
+  const { data, isError, isLoading, refetch: refectchCart } = useQuery<ProductCart[]>(
     ['cart'],
     async () => {
       const res = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart`);
-      return res.data;
+      const { data } = res;
+
+      return data;
     });
 
   const showMaxQtyForProductError = () => {
@@ -47,29 +51,56 @@ export const useCart = (type?: ProductType) => {
 
   const updateItemFromCart = async (productId: string, newQty: number = 1) => {
     try {
-      setIsLoadingAddToCart({ id: productId, loading: true })
-      await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cart?productId=${productId}`, undefined, {
+      await Axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cart`, undefined, {
         params: {
           productId,
           newQty
         }
       });
-      
-      await refectchCart();
+
       toast.success('Item quantity updated.');
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      const errorMsg: string = error?.response?.data?.message;
+  
+      errorMsg === 'MAX_STOCK_ERROR' ? showMaxQtyForProductError() : showDefaultErrorToast()
     } finally {
-      setIsLoadingAddToCart(addToCartLoadingBaseValue);
+      await refectchCart();
     }
   }
 
+  const removeFromCart = async (productId: string) => {
+    try {
+      await Axios.delete(`${process.env.REACT_APP_API_BASE_URL}/cart`, {
+        params: {
+          productId,
+        }
+      });
+
+      toast.success('Item removed from your cart.');
+    } catch (error: any) {
+      showDefaultErrorToast();
+    } finally {
+      await refectchCart();
+    }
+  }
+
+  useEffect(() => {
+    if (data) {
+      setProductsCount(data.reduce(
+        (acc: number, curr: any) => acc + curr.qty,
+        0
+      ))
+    }
+  }, [data])
+
   return {
-    cart: data,
+    productList: data,
+    productsCount,
     isError,
     isLoading,
     isLoadingAddToCart,
     addItemToCart,
     updateItemFromCart,
+    removeFromCart,
   };
 }
