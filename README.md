@@ -49,3 +49,6 @@ To run all the tests, run the following command:
 ```
 npm run test
 ```
+
+### Notes
+- I excluded the .env file from the .gitignore to make easier to setup and run the project
