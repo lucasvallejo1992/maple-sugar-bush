@@ -15,6 +15,7 @@ const addToCartLoadingBaseValue = {
 export const useCart = (type?: ProductType) => {
   const [isLoadingAddToCart, setIsLoadingAddToCart] = useState(addToCartLoadingBaseValue);
   const [productsCount, setProductsCount] = useState(0);
+  const [totalInCart, setTotalInCart] = useState(0);
 
   const { data, isError, isLoading, refetch: refectchCart } = useQuery<ProductCart[]>(
     ['cart'],
@@ -84,10 +85,42 @@ export const useCart = (type?: ProductType) => {
     }
   }
 
+  const checkOrder = async () => {
+    try {
+      if (!data?.length) {
+        return;
+      }
+  
+      const orderList = data?.map(({ productId, qty }) => ({
+        productId,
+        qty
+      }));
+  
+      const res = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/order`, orderList);
+  
+      const { isOrderValid, errors } = res.data;
+
+      if (!isOrderValid && errors.length) {
+        errors.forEach((error: string) => {
+          toast.error(error);
+        });
+        return;
+      }
+
+      toast.success('Your order is valid.');
+    } catch (error: any) {
+      showDefaultErrorToast();
+    }
+  }
+
   useEffect(() => {
     if (data) {
       setProductsCount(data.reduce(
         (acc: number, curr: any) => acc + curr.qty,
+        0
+      ));
+      setTotalInCart(data.reduce(
+        (acc: number, curr: any) => acc + (curr.qty * curr.price),
         0
       ))
     }
@@ -96,11 +129,13 @@ export const useCart = (type?: ProductType) => {
   return {
     productList: data,
     productsCount,
+    totalInCart,
     isError,
     isLoading,
     isLoadingAddToCart,
     addItemToCart,
     updateItemFromCart,
     removeFromCart,
+    checkOrder,
   };
 }

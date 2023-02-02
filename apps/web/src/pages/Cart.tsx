@@ -1,10 +1,10 @@
-import { Box, Container, Divider, Grid, Typography } from '@mui/material';
+import { Box, Button, Container, Divider, Grid, Typography } from '@mui/material';
 import ProductCartCard from '../components/cards/ProductCartCard';
 
 import { useCart } from '../hooks/useCart';
 
 const Cart = () => {
-  const { productList, updateItemFromCart, removeFromCart } = useCart();
+  const { productList, totalInCart, updateItemFromCart, removeFromCart, checkOrder } = useCart();
 
   return (
     <Container sx={{ marginBottom: 4, marginTop: 2 }}>
@@ -44,6 +44,26 @@ const Cart = () => {
           ) : undefined
         }
       </Grid>
+      {
+        productList?.length ? (
+          <Grid container flexDirection="column" rowSpacing={2} sx={{ marginTop: 2 }}>
+            <Grid item>
+              <Typography>
+                Your total in cart is: ${totalInCart}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                disabled={!productList?.length}
+                onClick={checkOrder}
+              >
+                Check your order
+              </Button>
+            </Grid>
+          </Grid>
+        ) : undefined
+      }
     </Container>
   )
 }
