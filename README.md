@@ -1,6 +1,12 @@
 #  Maple Sugar Shack
 
-This is an simple example of an ecommerce following the contract that you can find in `./docs/maple-sugar-shack.json`.
+Maple Sugar Shack is a simple ecommerce project built with Turborepo, React, and NestJS. The API was made following an base interface contract.
+I chose to use NestJS for the API development as it offers efficient and easy way to create services and ensure to follow the industry best practices. It has a robust module system, it's reliable, and offers support for widely used libraries.
+
+### Things that could be improved
+- Implement the repository pattern in the API design to facilitate testing of application logic
+- Improve the visual design and UX of the web application
+- Refactor the endpoint interface design to improve the request parameters and response body structures
 
 ##  What's inside?
 
@@ -35,4 +41,11 @@ To build all apps and packages, run the following command:
 
 ```
 npm run build
+```
+
+###  Test
+To run all the tests, run the following command:
+
+```
+npm run test
 ```
