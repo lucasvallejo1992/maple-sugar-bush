@@ -17,16 +17,16 @@ You could use Docker for set up the MongoDB running the following command:
 ```
 docker-compose up -d
 ```
-When you have MongoDB running you should run the migrations using the following command:
+When you have MongoDB running you should install the install packages and seed the products collection using the following command:
 ```
-npm run migrate
+npm install
+npm run seed
 ```
 
 ###  Develop
 To run all the apps, run the following command:
 
 ```
-cd my-turborepo
 npm run dev
 ```
 
@@ -34,6 +34,5 @@ npm run dev
 To build all apps and packages, run the following command:
 
 ```
-cd my-turborepo
 npm run build
 ```
